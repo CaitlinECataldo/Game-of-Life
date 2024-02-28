@@ -1,0 +1,30 @@
+body {
+    background-color: black;
+    justify-content: center;
+    display: flex;
+    margin: 0px;
+}
+
+.gameBoard {
+    height: 800px;
+    width: 1000px;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto auto auto;
+    grid-template-rows: auto auto auto auto auto auto;
+    justify-content: center;
+    align-content: center;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    margin: auto;
+}
+
+.alive {
+    background-color: white;
+}
+
+.dead {
+    background-color: black;
+}
