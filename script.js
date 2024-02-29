@@ -19,8 +19,8 @@ createGameBoard();
 
 // Changes a cell to alive when clicked
 $(window).click(function(event) {
-    // rebirth();
-    console.log(event.target);
+    let targetId = (event.target.id);
+    spawnLife(targetId);
 });
 
 createGameBoard();
@@ -60,6 +60,11 @@ function createGameBoard() {
     }
 }
     populateCells(totalCells);
+}
+
+// This function brings a cell to life based on the id entered into the parameter
+function spawnLife(id) {
+    $(`.cell#${id}`).removeClass("dead").addClass("alive");
 }
 
 function spawnRandomId(idLength) {
