@@ -6,8 +6,7 @@ let gridDimension = document.querySelectorAll(".cell");
 // let gameRows = $(".gameBoard").css("grid-template-rows").split(" ").length; 
 let totalCells = "";
 let cellSize = 50; // The size of all cells
-let cellMatrixArray = []; // This is a matrix of the numbers representing all cells, in the same rows/columns as UI
-
+let cellDataNumbers = []; // This is a matrix of the numbers representing all cells, in the same rows/columns as UI
 
 // Event Listeners
 
@@ -20,7 +19,9 @@ createGameBoard();
 // Changes a cell to alive when clicked
 $(window).click(function(event) {
     let targetId = (event.target.id);
+    let targetDataId = $(event.target).data('number');
     spawnLife(targetId);
+    console.log("targetDataId: ",targetDataId,"cellDataNumbers",cellDataNumbers,"left: ", "right: ","up: ", "down: " );
 });
 
 createGameBoard();
@@ -49,34 +50,31 @@ function createGameBoard() {
 
     // this creates a div for all cells (totalCells) and displays them in the UI
     function populateCells(countOfCells) {
-        let cellIndex = 0;
-        let cellDataNumbers = [];
         $( ".gameBoard" ).empty();
+        let cellIndex = 0
         for (cellIndex; cellIndex < countOfCells;) {
-            let cellDataRow = [];
-            cellDataNumbers.push(cellDataRow);
-            // console.log("cellDataRow: ", cellDataRow);
-            for (let i = 0; i < gameRows; i++) {
-                let cellDataColumn = [];
-                cellDataRow.push(cellDataColumn);
-                // console.log("cellDataColumn: ", cellDataColumn);
-                for (let i = 0; i < gameColumns; i++) {
-                    let columnIndex = Math.floor(cellIndex/gameColumns);
-                    let rowIndex = Math.floor(cellIndex/gameRows);
-                    let randomId = spawnRandomId(10);
-                    let dataNumber = cellIndex++;
-                    cellDataColumn.push(dataNumber);
-                    // columnObject.id = randomId;
-                    // columnObject.dataNumber = cellIndex++;
-                    let cellDiv = `<button class="cell dead" id="${randomId}" data-number="${dataNumber}" ></button>`; // the div used to show cells in UI/DOM
-                    // console.log("columnObject: ",columnObject,"countOfCells: ",countOfCells,"cellIndex: ",cellIndex,"gameColumns: ",gameColumns, "columnIndex: ",columnIndex, "rowIndex: ", rowIndex, "gameRows: ",gameRows);
-                    $( ".gameBoard" ).append( $( cellDiv ) );
-                }
-            }
+            let cellDataColumn = [];
+            
+                
+                    for(let i = 0; i < gameColumns; i++) {
+                        let randomId = spawnRandomId(10);
+                        let dataNumber = cellIndex++;
+                        cellDataColumn.push(dataNumber);
+                        let cellDiv = `<button class="cell dead" id="${randomId}" data-number="${dataNumber}" ></button>`; // the div used to show cells in UI/DOM
+                        $( ".gameBoard" ).append( $( cellDiv ) );
+                    }
+               
+                    cellDataNumbers.push(cellDataColumn);
     }
-    console.log("cellDataNumbers: ", cellDataNumbers, "countOfCells: ", countOfCells);
 }
-    populateCells(totalCells);
+populateCells(totalCells);
+
+}
+
+// This function returns a grid for all cells showing in the UI
+function createCellArray(countOfCells) {
+    // Loop through all divs with forEach() and target the dataNumber 
+    // Refer to partially completed for loops in populateCells()
 }
 
 // This function brings a cell to life based on the id entered into the parameter
