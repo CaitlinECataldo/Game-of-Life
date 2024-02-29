@@ -49,15 +49,32 @@ function createGameBoard() {
 
     // this creates a div for all cells (totalCells) and displays them in the UI
     function populateCells(countOfCells) {
-        let index = 0;
+        let cellIndex = 0;
+        let cellDataNumbers = [];
         $( ".gameBoard" ).empty();
-        for (let i = 0; i < countOfCells; i++) {
-            let columnDataNumbers = [];
-            let randomId = spawnRandomId(10);
-            
-            let cellDiv = `<button class="cell dead" id="${randomId}" data-number="${index++}" ></button>`; // the div used to show cells in UI/DOM
-            $( ".gameBoard" ).append( $( cellDiv ) );
+        for (cellIndex; cellIndex < countOfCells;) {
+            let cellDataRow = [];
+            cellDataNumbers.push(cellDataRow);
+            // console.log("cellDataRow: ", cellDataRow);
+            for (let i = 0; i < gameRows; i++) {
+                let cellDataColumn = [];
+                cellDataRow.push(cellDataColumn);
+                // console.log("cellDataColumn: ", cellDataColumn);
+                for (let i = 0; i < gameColumns; i++) {
+                    let columnIndex = Math.floor(cellIndex/gameColumns);
+                    let rowIndex = Math.floor(cellIndex/gameRows);
+                    let randomId = spawnRandomId(10);
+                    let dataNumber = cellIndex++;
+                    cellDataColumn.push(dataNumber);
+                    // columnObject.id = randomId;
+                    // columnObject.dataNumber = cellIndex++;
+                    let cellDiv = `<button class="cell dead" id="${randomId}" data-number="${dataNumber}" ></button>`; // the div used to show cells in UI/DOM
+                    // console.log("columnObject: ",columnObject,"countOfCells: ",countOfCells,"cellIndex: ",cellIndex,"gameColumns: ",gameColumns, "columnIndex: ",columnIndex, "rowIndex: ", rowIndex, "gameRows: ",gameRows);
+                    $( ".gameBoard" ).append( $( cellDiv ) );
+                }
+            }
     }
+    console.log("cellDataNumbers: ", cellDataNumbers, "countOfCells: ", countOfCells);
 }
     populateCells(totalCells);
 }
