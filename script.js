@@ -1,13 +1,15 @@
+// IMPORTANT NOTE - All coordinates are formated [y,x] so that they can be indexed within 2D arrays
+
 $( document ).ready(function() {
  
 // Variables
 let totalCells = "";
 let cellSize = 50; // The size of all cells
-let cellDataNumbers = []; // This is a matrix of the numbers representing all cells, in the same rows/columns as UI
 let windowWidth = $(window).width(); // the total width of the screen size
 let windowHeight = $(window).height(); // the total height of the screen size
 let gameColumns = Math.round(windowWidth/cellSize);
 let gameRows = Math.round(windowHeight/cellSize);
+let cellMatrix = []; // This is a matrix of the numbers representing all cells, in the same rows/columns as UI
 
 
 // Event Listeners
@@ -22,8 +24,8 @@ createGameBoard();
 $(window).click(function(event) {
     let targetId = (event.target.id);
     let targetDataId = $(event.target).data('number');
-    spawnLife(targetId);
-    console.log("targetDataId: ",targetDataId,"cellDataNumbers",cellDataNumbers,"left: ", "right: ","up: ", "down: " );
+    spawnLife(targetId,targetDataId);
+    console.log("targetDataId: ",targetDataId,"left: ", "right: ","up: ", "down: " );
 });
 
 createGameBoard();
@@ -65,7 +67,6 @@ function createGameBoard() {
                         $( ".gameBoard" ).append( $( cellDiv ) );
                     // }
                
-                    // cellDataNumbers.push(cellDataColumn);
     }
 }
 populateCells(totalCells);
@@ -75,11 +76,10 @@ populateCells(totalCells);
 // This function returns a grid for all cells showing in the UI
 function createCellArray(countOfCells) {
     let cellArray = [];
-    let cellMatrix = [];
 
     for (let i = 0; i < $(".cell").length; i++ ) {
         let cellElement = $(".cell")[i];
-        cellArray.push(cellElement.dataset.number);
+        cellArray.push(Number(cellElement.dataset.number));
     }
     let column = [];
     // Group the dataset numbers into colums
@@ -93,14 +93,52 @@ function createCellArray(countOfCells) {
         }
         cellMatrix.push(column);
     }
-
-
+ 
           console.log("cellMatrix: ",cellMatrix);
 }
 
 // This function brings a cell to life based on the id entered into the parameter
-function spawnLife(id) {
+function spawnLife(id, dataId) {
+    let cellCoordinate = "";
     $(`.cell#${id}`).removeClass("dead").addClass("alive");
+    
+    // Find the coordinate of dataId
+    let columnIndex = "";
+    let rowIndex = "";
+    for (let i = 0; i < gameRows; i++) {
+        let index = "";
+        index = cellMatrix[i].indexOf(dataId);
+        if (index != -1) {
+            columnIndex = index;
+            rowIndex = i;
+            }
+        } 
+    cellCoordinate = [rowIndex, columnIndex];
+    
+    treeOfLife(dataId);
+    function treeOfLife(dataId) {
+        let leftCellCoordinate = [];
+        let topCellCoordinate = [];
+        let rightCellCoordinate = [];
+        let bottomCellCoordinate = [];
+        let leftCellValue = "";
+        let topCellValue = "";
+        let rightCellValue = "";
+        let bottomCellValue= "";
+
+    topCellCoordinate.push(rowIndex - 1, columnIndex);
+    bottomCellCoordinate.push(rowIndex + 1, columnIndex);
+    rightCellCoordinate.push(rowIndex, columnIndex + 1);
+    leftCellCoordinate.push(rowIndex, columnIndex - 1);
+
+
+    console.log("cellCoordinate: ",cellCoordinate);
+    console.log("bottomCellCoordinate: ",bottomCellCoordinate);
+    console.log("topCellCoordinate: ",topCellCoordinate);
+    console.log("rightCellCoordinate: ",rightCellCoordinate);
+    console.log("leftCellCoordinate: ",leftCellCoordinate);
+
+    }
 }
 
 function spawnRandomId(idLength) {
@@ -129,12 +167,6 @@ function spawnRandomId(idLength) {
     return randomId;
 }
 
-function treeOfLife(selectedCell) {
-    let leftCell = "";
-    let topCell = "";
-    let rightCell = "";
-    let bottomCell = "";
-}
 
 // Error Reporting
 // function duplicateIdError() {
