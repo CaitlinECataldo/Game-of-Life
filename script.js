@@ -131,17 +131,22 @@ function spawnLife(id, dataId) {
         let leftCellValue = "";
         let topCellValue = "";
         let rightCellValue = "";
-        let bottomCellValue= "";
-
+        let bottomCellValue = "";
 
         leftCellValue = cellMatrix[leftCellCoordinate[0]][leftCellCoordinate[1]];
         topCellValue = cellMatrix[topCellCoordinate[0]][topCellCoordinate[1]];
         rightCellValue = cellMatrix[rightCellCoordinate[0]][rightCellCoordinate[1]];
-        bottomCellValue= cellMatrix[bottomCellCoordinate[0]][bottomCellCoordinate[1]];
+        bottomCellValue = cellMatrix[bottomCellCoordinate[0]][bottomCellCoordinate[1]];
+
+        // ID of all touching cells of dataId
+        let leftCellId = $(`[data-number = ${leftCellValue}]`).attr('id');
+        let topCellId = $(`[data-number = ${topCellValue}]`).attr('id');;
+        let rightCellId = $(`[data-number = ${rightCellValue}]`).attr('id');;
+        let bottomCellId = $(`[data-number = ${bottomCellValue}]`).attr('id');;
 
 
 
-    console.log("targetDataId:",dataId," left:",leftCellValue, " right:",rightCellValue," up:",topCellValue, " down:", bottomCellValue );
+    console.log("targetDataId:",id," left:",leftCellId, " right:",rightCellId," up:",topCellId, " down:", bottomCellId );
 
 
     }
