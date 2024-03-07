@@ -25,7 +25,6 @@ $(window).click(function(event) {
     let targetId = (event.target.id);
     let targetDataId = $(event.target).data('number');
     spawnLife(targetId,targetDataId);
-    console.log("targetDataId: ",targetDataId,"left: ", "right: ","up: ", "down: " );
 });
 
 createGameBoard();
@@ -117,26 +116,33 @@ function spawnLife(id, dataId) {
     
     treeOfLife(dataId);
     function treeOfLife(dataId) {
+        // Coordinates of all touching cells of dataId
         let leftCellCoordinate = [];
         let topCellCoordinate = [];
         let rightCellCoordinate = [];
         let bottomCellCoordinate = [];
+
+        topCellCoordinate.push(rowIndex - 1, columnIndex);
+        bottomCellCoordinate.push(rowIndex + 1, columnIndex);
+        rightCellCoordinate.push(rowIndex, columnIndex + 1);
+        leftCellCoordinate.push(rowIndex, columnIndex - 1);
+
+        // Value of all touching cells of dataId
         let leftCellValue = "";
         let topCellValue = "";
         let rightCellValue = "";
         let bottomCellValue= "";
 
-    topCellCoordinate.push(rowIndex - 1, columnIndex);
-    bottomCellCoordinate.push(rowIndex + 1, columnIndex);
-    rightCellCoordinate.push(rowIndex, columnIndex + 1);
-    leftCellCoordinate.push(rowIndex, columnIndex - 1);
+
+        leftCellValue = cellMatrix[leftCellCoordinate[0]][leftCellCoordinate[1]];
+        topCellValue = cellMatrix[topCellCoordinate[0]][topCellCoordinate[1]];
+        rightCellValue = cellMatrix[rightCellCoordinate[0]][rightCellCoordinate[1]];
+        bottomCellValue= cellMatrix[bottomCellCoordinate[0]][bottomCellCoordinate[1]];
 
 
-    console.log("cellCoordinate: ",cellCoordinate);
-    console.log("bottomCellCoordinate: ",bottomCellCoordinate);
-    console.log("topCellCoordinate: ",topCellCoordinate);
-    console.log("rightCellCoordinate: ",rightCellCoordinate);
-    console.log("leftCellCoordinate: ",leftCellCoordinate);
+
+    console.log("targetDataId:",dataId," left:",leftCellValue, " right:",rightCellValue," up:",topCellValue, " down:", bottomCellValue );
+
 
     }
 }
