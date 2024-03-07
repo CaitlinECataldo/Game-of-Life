@@ -1,12 +1,14 @@
 $( document ).ready(function() {
  
 // Variables
-let gridDimension = document.querySelectorAll(".cell");
-// let gameColumns = $(".gameBoard").css("grid-template-columns").split(" ").length;
-// let gameRows = $(".gameBoard").css("grid-template-rows").split(" ").length; 
 let totalCells = "";
 let cellSize = 50; // The size of all cells
 let cellDataNumbers = []; // This is a matrix of the numbers representing all cells, in the same rows/columns as UI
+let windowWidth = $(window).width(); // the total width of the screen size
+let windowHeight = $(window).height(); // the total height of the screen size
+let gameColumns = Math.round(windowWidth/cellSize);
+let gameRows = Math.round(windowHeight/cellSize);
+
 
 // Event Listeners
 
@@ -26,14 +28,13 @@ $(window).click(function(event) {
 
 createGameBoard();
 
+createCellArray();
+
 // this sets the total rows and columns for the game
 function createGameBoard() {
     let columnStyle = ""
     let rowStyle = ""
-    let windowWidth = $(window).width(); // the total width of the screen size
-    let windowHeight = $(window).height(); // the total height of the screen size
-    let gameColumns = Math.round(windowWidth/cellSize);
-    let gameRows = Math.round(windowHeight/cellSize);
+
 
     for(let i = 0; i < gameColumns; i++) {
         columnStyle = columnStyle + "auto ";
@@ -53,18 +54,18 @@ function createGameBoard() {
         $( ".gameBoard" ).empty();
         let cellIndex = 0
         for (cellIndex; cellIndex < countOfCells;) {
-            let cellDataColumn = [];
+            // let cellDataColumn = [];
             
                 
-                    for(let i = 0; i < gameColumns; i++) {
+            //         for(let i = 0; i < gameColumns; i++) {
                         let randomId = spawnRandomId(10);
                         let dataNumber = cellIndex++;
-                        cellDataColumn.push(dataNumber);
+                        // cellDataColumn.push(dataNumber);
                         let cellDiv = `<button class="cell dead" id="${randomId}" data-number="${dataNumber}" ></button>`; // the div used to show cells in UI/DOM
                         $( ".gameBoard" ).append( $( cellDiv ) );
-                    }
+                    // }
                
-                    cellDataNumbers.push(cellDataColumn);
+                    // cellDataNumbers.push(cellDataColumn);
     }
 }
 populateCells(totalCells);
@@ -73,8 +74,28 @@ populateCells(totalCells);
 
 // This function returns a grid for all cells showing in the UI
 function createCellArray(countOfCells) {
-    // Loop through all divs with forEach() and target the dataNumber 
-    // Refer to partially completed for loops in populateCells()
+    let cellArray = [];
+    let cellMatrix = [];
+
+    for (let i = 0; i < $(".cell").length; i++ ) {
+        let cellElement = $(".cell")[i];
+        cellArray.push(cellElement.dataset.number);
+    }
+    let column = [];
+    // Group the dataset numbers into colums
+    let index = 0;
+    for (let i=0; i < gameRows; i++) {
+        column = [];
+
+        for (let j = 0; j < gameColumns; j++) {
+            column.push(cellArray[index]);
+            index++;
+        }
+        cellMatrix.push(column);
+    }
+
+
+          console.log("cellMatrix: ",cellMatrix);
 }
 
 // This function brings a cell to life based on the id entered into the parameter
@@ -106,6 +127,13 @@ function spawnRandomId(idLength) {
 
     // return randomLetter;
     return randomId;
+}
+
+function treeOfLife(selectedCell) {
+    let leftCell = "";
+    let topCell = "";
+    let rightCell = "";
+    let bottomCell = "";
 }
 
 // Error Reporting
