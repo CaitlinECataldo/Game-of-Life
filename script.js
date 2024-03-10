@@ -3,13 +3,16 @@
 $( document ).ready(function() {
  
 // Variables
-let totalCells = "";
 let cellSize = 50; // The size of all cells
 let windowWidth = $(window).width(); // the total width of the screen size
 let windowHeight = $(window).height(); // the total height of the screen size
 let gameColumns = Math.round(windowWidth/cellSize);
 let gameRows = Math.round(windowHeight/cellSize);
 let cellMatrix = []; // This is a matrix of the numbers representing all cells, in the same rows/columns as UI
+let totalCells = gameRows * gameColumns;
+
+// All cells organized into alive and dead status. Include ID, data-number and cell coordinate
+let cellStatus = [];
 
 
 // Event Listeners
@@ -99,16 +102,28 @@ function createCellArray(countOfCells) {
 
 // This function brings a cell to life based on the id entered into the parameter
 function spawnLife(id, dataId) {
-    
+    let row = cellCoordinate(dataId)[0];
+    let column = cellCoordinate(dataId)[1];
     $(`.cell#${id}`).removeClass("dead").addClass("alive");
-    
-    // Find the coordinate of dataId
-    treeOfLife(cellCoordinate(dataId)[0], cellCoordinate(dataId)[1]);
 
+    allCellStatus();
     
+    // Check all cells and update their status based on neighbor status
+    
+        for (let i = 0; i < totalCells; i++) {
+           
+            // row = cellStatus[i].coordinate[0];
+            // column = cellStatus[i].coordinate[1];
+            // treeOfLife(row,column);
+        }
+        treeOfLife(row, column);
+        console.log("cellStatus:",cellStatus);    
 }
 
 function cellCoordinate(dataId) {
+    if (typeof dataId != "number") {
+        throw Error("dataId must be a number in order to receive corrdinates");
+    }
     // Find the coordinate of dataId
     let cellCoordinate = "";
     let columnIndex = ""; 
@@ -129,26 +144,17 @@ function cellCoordinate(dataId) {
 
 
 function allCellStatus() {
-    let aliveCells = document.querySelectorAll(".alive");
-    let deadCells = document.querySelectorAll(".dead");
-    let cellStatus = {
-        alive: [],
-        dead: []
-    };
-
+    let allCells = $(".cell");
+    cellStatus = [];
 
     // adds the id and data-number to each cell element within cellStatus object
-    for (let i = 0; i < deadCells.length; i++) {
-        cellStatus.dead.push({id: $(deadCells[i]).attr('id'), dataId: parseInt($(deadCells[i]).attr('data-number')), coordinate: cellCoordinate(parseInt($(deadCells[i]).attr('data-number')))});
+    for (let i = 0; i < totalCells; i++) {
+        let deadOrAlive = ($(allCells[i]).attr('class').split(" ")).filter(function(x){return x === "dead" || x === "alive"})[0];
+        let idValue = $(allCells[i]).attr('id');
+        let dataIdValue = parseInt($(allCells[i]).attr('data-number'));
+        let coordinateValue = cellCoordinate(parseInt($(allCells[i]).attr('data-number')));
+        cellStatus.push({status: deadOrAlive,id: idValue, dataId: dataIdValue, coordinate: coordinateValue});
     }
-
-    for (let i = 0; i < aliveCells.length; i++) {
-        // cellStatus.alive.push([$(aliveCells[i]).attr('id'),$(aliveCells[i]).attr('data-number')]);
-        cellStatus.alive.push({id: $(aliveCells[i]).attr('id'), dataId: $(aliveCells[i]).attr('data-number'),coordinate: cellCoordinate(parseInt($(deadCells[i]).attr('data-number')))});
-    }
-   
-        console.log(cellStatus);
-        
         return cellStatus;
     }
 
@@ -156,7 +162,8 @@ function allCellStatus() {
 
 // Controls the actions of all cells touching the selected cell
 function treeOfLife(rowIndex, columnIndex) {
-
+    let allStatus = [];
+    let aliveCells = [];
     let familyCells = {
         top: {
             coordinate: [rowIndex - 1, columnIndex],
@@ -200,46 +207,42 @@ function treeOfLife(rowIndex, columnIndex) {
             id: "" },
         
     }
-
-    for (let cell in familyCells) {
-        familyCells[cell].value = cellMatrix[familyCells[cell].coordinate[0]][familyCells[cell].coordinate[1]];
+    
+    // Assign values for status, id and value within the familyCells object
+    for (let family in familyCells) {
         
-        if ($(`[data-number = ${familyCells[cell].value}]`).attr('class').indexOf("dead") != -1) {
-            familyCells[cell].status = "dead";
-        } else {
-            familyCells[cell].status = "alive";
+        for (let i = 0; i < cellStatus.length; i++) {
+            // look up the coordinate for a specific family cell
+            if (cellStatus[i].coordinate[0] === familyCells[family].coordinate[0] && cellStatus[i].coordinate[1] === familyCells[family].coordinate[1]) {
+                // Reference cellStatus array to find the data-number, id and alive/dead status
+                // Assign these values to the specific family cell
+                familyCells[family].value = cellStatus[i].dataId;
+                familyCells[family].id = cellStatus[i].id;
+                familyCells[family].status = cellStatus[i].status;                
+            }
+            
+            
         }
-        
-        familyCells[cell].id = $(`[data-number = ${familyCells[cell].value}]`).attr('id');
     }
-
-    console.log("familyCells:", familyCells);
+    console.log("familyCells:",familyCells);
 
 
     //Birth rule: An empty, or “dead,” cell with precisely three “live” neighbors (full cells) becomes live. 
-    // Death rule: A live cell with zero or one neighbors dies of isolation; a live cell with four or more neighbors dies of overcrowding. 
-    // Survival rule: A live cell with two or three neighbors remains alive.
+    
+        // Identifies the alive/dead status of each family cell
+        for (let direction in familyCells) {
+        
+            allStatus.push(familyCells[direction].status);
+        }
 
+        // Identifies the total number of alive family cells
+        aliveCells = allStatus.filter(function(status) {
+            return status === "alive";
+        }).length;
 
-   /* // Check if the neighboring cells are within bounds
-    if (leftCellCoordinate[1] >= 0 && leftCellStatus === "dead") {
-        spawnLife(leftCellId, dataId);
-        leftCellStatus = "alive";
-    }
-    if (topCellCoordinate[0] >= 0) {
-        // spawnLife(topCellId, dataId);
-    }
-    if (rightCellCoordinate[1] < gameColumns) {
-        // spawnLife(rightCellId, dataId);
-    }
-    if (bottomCellCoordinate[0] < gameRows) {
-        // spawnLife(bottomCellId, dataId);
-    }
-
-        // Brings all touching cells to life
-    */
-
-
+        if (aliveCells === 3) {
+            
+        }
 }
 
 function spawnRandomId(idLength) {
@@ -263,8 +266,6 @@ function spawnRandomId(idLength) {
             
         }
     }
-
-    // return randomLetter;
     return randomId;
 }
 
