@@ -25,6 +25,7 @@ $(window).click(function(event) {
     let targetId = (event.target.id);
     let targetDataId = $(event.target).data('number');
     spawnLife(targetId,targetDataId);
+    allCellStatus();
 });
 
 createGameBoard();
@@ -98,23 +99,63 @@ function createCellArray(countOfCells) {
 
 // This function brings a cell to life based on the id entered into the parameter
 function spawnLife(id, dataId) {
-    let cellCoordinate = "";
+    
     $(`.cell#${id}`).removeClass("dead").addClass("alive");
     
     // Find the coordinate of dataId
-    let columnIndex = "";
+    treeOfLife(cellCoordinate(dataId)[0], cellCoordinate(dataId)[1]);
+
+    
+}
+
+function cellCoordinate(dataId) {
+    // Find the coordinate of dataId
+    let cellCoordinate = "";
+    let columnIndex = ""; 
     let rowIndex = "";
+    let index = "";
+    
     for (let i = 0; i < gameRows; i++) {
-        let index = "";
         index = cellMatrix[i].indexOf(dataId);
         if (index != -1) {
             columnIndex = index;
             rowIndex = i;
+            cellCoordinate = [rowIndex, columnIndex];
+            return cellCoordinate;
             }
         } 
-    cellCoordinate = [rowIndex, columnIndex];
-    console.log("cellCoordinate:",cellCoordinate);
-    // treeOfLife(dataId, rowIndex, columnIndex);
+}
+
+
+
+function allCellStatus() {
+    let aliveCells = document.querySelectorAll(".alive");
+    let deadCells = document.querySelectorAll(".dead");
+    let cellStatus = {
+        alive: [],
+        dead: []
+    };
+
+
+    // adds the id and data-number to each cell element within cellStatus object
+    for (let i = 0; i < deadCells.length; i++) {
+        cellStatus.dead.push({id: $(deadCells[i]).attr('id'), dataId: parseInt($(deadCells[i]).attr('data-number')), coordinate: cellCoordinate(parseInt($(deadCells[i]).attr('data-number')))});
+    }
+
+    for (let i = 0; i < aliveCells.length; i++) {
+        // cellStatus.alive.push([$(aliveCells[i]).attr('id'),$(aliveCells[i]).attr('data-number')]);
+        cellStatus.alive[i] = {id: $(aliveCells[i]).attr('id'), dataId: $(aliveCells[i]).attr('data-number')};
+    }
+   
+        console.log(cellStatus);
+        
+        return cellStatus;
+    }
+
+
+
+// Controls the actions of all cells touching the selected cell
+function treeOfLife(rowIndex, columnIndex) {
 
     let familyCells = {
         top: {
@@ -173,13 +214,6 @@ function spawnLife(id, dataId) {
     }
 
     console.log("familyCells:", familyCells);
-}
-
-
-// Controls the actions of all cells touching the selected cell
-function treeOfLife(dataId, rowIndex, columnIndex) {
-
-    
 
 
     //Birth rule: An empty, or “dead,” cell with precisely three “live” neighbors (full cells) becomes live. 
