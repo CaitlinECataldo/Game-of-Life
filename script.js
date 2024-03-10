@@ -144,7 +144,7 @@ function allCellStatus() {
 
     for (let i = 0; i < aliveCells.length; i++) {
         // cellStatus.alive.push([$(aliveCells[i]).attr('id'),$(aliveCells[i]).attr('data-number')]);
-        cellStatus.alive[i] = {id: $(aliveCells[i]).attr('id'), dataId: $(aliveCells[i]).attr('data-number')};
+        cellStatus.alive.push({id: $(aliveCells[i]).attr('id'), dataId: $(aliveCells[i]).attr('data-number'),coordinate: cellCoordinate(parseInt($(deadCells[i]).attr('data-number')))});
     }
    
         console.log(cellStatus);
