@@ -126,11 +126,11 @@ function killCell(id) {
     
     // Check all cells and update their status based on neighbor status
     
-        for (let i = 0; i < totalCells; i++) {
-           let cellDataId = cellStatus[i].dataId;
+        // for (let i = 0; i < totalCells; i++) {
+        //    let cellDataId = cellStatus[i].dataId;
 
             // lifeRules(cellCoordinate(cellDataId));
-        } 
+        //} 
 }
 
 
@@ -156,7 +156,7 @@ function lifeRules(coordinate) {
     
     // Death rule: A live cell with zero or one neighbors dies of isolation; a live cell with four or more neighbors dies of overcrowding.
     if (cellInfo.immortal === false && cellInfo.status === "alive" && familyStatus.alive <= 1 || familyStatus.alive >= 4 ) {
-        // return killCell(cellInfo.id);
+        return killCell(cellInfo.id);
     }
 }
 
