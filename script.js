@@ -101,22 +101,59 @@ function createCellArray(countOfCells) {
 
 // This function brings a cell to life based on the id entered into the parameter
 function spawnLife(id,click) {
+    allCellStatus();
+    let dataId = findDataId(id);
     $(`.cell#${id}`).removeClass("dead").addClass("alive");
     if (click) {
         $(`.cell#${id}`).addClass("immortal");
     }
-    allCellStatus();
-    console.log("cellStatus:",cellStatus);
     
+
+    console.log("dataId",dataId);
+    
+    // Use a setTimeout to wait for UI changes to be applied before updating cell status
+    setTimeout(() => {
+    let coordinate = cellCoordinate(dataId); // Find the coordinate of the clicked cell
+    updateCellStatus(coordinate); // Update the status of the clicked cell and its neighbors
+    console.log("coordinate:", coordinate);
+}, 1); // Delay of 0 milliseconds
+
+
     // Check all cells and update their status based on neighbor status
     
-        for (let i = 0; i < totalCells; i++) {
-           let cellDataId = cellStatus[i].dataId;
-            // row = cellStatus[i].coordinate[0];
-            // column = cellStatus[i].coordinate[1];
+        // for (let i = 0; i < totalCells; i++) {
+        //    let cellDataId = cellStatus[i].dataId;
+        //     // row = cellStatus[i].coordinate[0];
+        //     // column = cellStatus[i].coordinate[1];
 
-            lifeRules(cellCoordinate(cellDataId));
-        } 
+        //     lifeRules(cellCoordinate(cellDataId));
+        // } 
+}
+
+function updateCellStatus(coordinate) {
+    let row = coordinate[0];
+    let column = coordinate[1];
+    let familyTest = findFamily(row,column).family;
+    console.log("findFamily(row,column) | updateCellStatus",familyTest);
+    console.log("coordinate (updateCellStatus):",coordinate);
+    console.log("row type (updateCellStatus):",row, typeof row);
+    
+
+    // do lifeRules for every neighbor cell
+    for (let family in familyTest) {
+        let extendedFamily = findFamily(familyTest[family].coordinate[0],familyTest[family].coordinate[1]).family
+        console.log(`family for cell ${familyTest[family].id} | updateCellsStatus`,extendedFamily)
+        // for (let extended in extendedFamily) {
+        //     console.log(`coordinates for extended cell ${extendedFamily[extended].id} | updateCellsStatus`,extendedFamily[extended].coordinate[0],extendedFamily[extended].coordinate[1]);
+        //     console.log(`family for extended cell ${extendedFamily[extended].id} | updateCellsStatus`,extendedFamily);
+        //     lifeRules(extendedFamily[extended].coordinate);
+        // }
+        console.log(`doing lifeRules for ${familyTest[family].id} | updateCellsStatus`,extendedFamily)
+        lifeRules(familyTest[family].coordinate);
+    }
+    lifeRules(coordinate)
+    allCellStatus()
+    // Problem: Last clicked cell status update is lagging by one click
 }
 
 function killCell(id) {
@@ -139,13 +176,18 @@ function lifeRules(coordinate) {
     let cellInfo = findCell(coordinate);
     let row = coordinate[0];
     let column = coordinate[1];
+    let bornCells = []; // Testing a way to bring cells to life individually
+    let killedCells = []; // Testing a way to kill cells individually
 
-    let familyStatus = findFamily(row, column);
-
+    let familyStatus = findFamily(row, column).totalFamily;
+    console.log(`familyStatus (lifeRules) for ${findCell(coordinate).id}:`,familyStatus);
+    console.log(`cellInfo status for ${findCell(coordinate).id}: (lifeRules):`,cellInfo.status);
+    console.log(`cellInfo for ${findCell(coordinate).id}: (lifeRules):`,cellInfo);
+    console.log("coordinate (lifeRules):",coordinate);
     //Birth rule: An empty, or “dead,” cell with precisely three “live” neighbors (full cells) becomes live. 
     if (cellInfo.status === "dead" && familyStatus.alive === 3) {
         // spawnLife(id, dataId);
-        console.log(`cell ${cellInfo.id} has 3 siblings and should spawn a life`);
+        console.log(`cell ${cellInfo.id} has 3 siblings and should spawn a life (lifeRules)`);
         return spawnLife(cellInfo.id, false);
     }
 
@@ -156,8 +198,12 @@ function lifeRules(coordinate) {
     
     // Death rule: A live cell with zero or one neighbors dies of isolation; a live cell with four or more neighbors dies of overcrowding.
     if (cellInfo.immortal === false && cellInfo.status === "alive" && familyStatus.alive <= 1 || familyStatus.alive >= 4 ) {
+        killedCells.push(cellInfo.id);
         return killCell(cellInfo.id);
     }
+
+    console.log("bornCells (lifeRules):",bornCells);
+    console.log("killedCells (lifeRules):",killedCells);
 }
 
 function allCellStatus() {
@@ -274,6 +320,7 @@ function findFamily(rowIndex, columnIndex) {
             }
             
         }
+        // Add family key to each family cell
     }
 
     familyStatus.alive = familyStatus.alive.length;
@@ -281,7 +328,7 @@ function findFamily(rowIndex, columnIndex) {
     // console.log("familyCells:",familyCells);
     // console.log("cellStatus:",cellStatus);
     // console.log("family cell status", familyStatus);
-    return familyStatus;
+    return {totalFamily: familyStatus, family: familyCells};
 }
 
 // This identifies the cellStatus info for the matching cell
@@ -298,9 +345,24 @@ function findCell(coordinate) {
     return cellInfo;
 }
 
+function findDataId(id) {
+    let dataId = "";
+    console.log("findDataId",id);
+    console.log("cellStatus",cellStatus);
+    for (let cell in cellStatus) {
+
+        if (id === cellStatus[cell].id) {
+            dataId = cellStatus[cell].dataId;
+        }
+    }
+    return dataId
+}
+
 // This finds a coordinate of any cell by using the dataId
 function cellCoordinate(dataId) {
+    
     dataId = parseFloat(dataId);
+
     if (typeof dataId != "number") {
         throw Error("dataId must be a number in order to receive corrdinates");
     }
@@ -315,7 +377,7 @@ function cellCoordinate(dataId) {
         if (index != -1) {
             columnIndex = index;
             rowIndex = i;
-            cellCoordinate = [rowIndex, columnIndex];
+            cellCoordinate = [parseFloat(rowIndex), parseFloat(columnIndex)];
             return cellCoordinate;
             }
         } 
