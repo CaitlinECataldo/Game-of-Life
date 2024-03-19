@@ -1,5 +1,8 @@
 // IMPORTANT NOTE - All coordinates are formated [y,x] so that they can be indexed within 2D arrays
 
+// ERRORS: the game does not function as expected when the cells reach the edge of the board. 
+    // Have the cells zoom out and add another row or column when cells reach the edge
+
 $( document ).ready(function() {
  
 // Variables
@@ -57,18 +60,13 @@ function createGameBoard() {
     function populateCells(countOfCells) {
         $( ".gameBoard" ).empty();
         let cellIndex = 0
-        for (cellIndex; cellIndex < countOfCells;) {
-            // let cellDataColumn = [];
-            
+        for (cellIndex; cellIndex < countOfCells;) {           
                 
-            //         for(let i = 0; i < gameColumns; i++) {
                         let randomId = spawnRandomId(10);
                         let dataNumber = cellIndex++;
                         // cellDataColumn.push(dataNumber);
                         let cellDiv = `<button class="cell dead" id="${randomId}" data-number="${dataNumber}" ></button>`; // the div used to show cells in UI/DOM
-                        $( ".gameBoard" ).append( $( cellDiv ) );
-                    // }
-               
+                        $( ".gameBoard" ).append( $( cellDiv ) );        
     }
 }
 populateCells(totalCells);
@@ -95,79 +93,49 @@ function createCellArray(countOfCells) {
         }
         cellMatrix.push(column);
     }
- 
-          console.log("cellMatrix: ",cellMatrix);
 }
 
 // This function brings a cell to life based on the id entered into the parameter
 function spawnLife(id,click) {
     allCellStatus();
     let dataId = findDataId(id);
+    let coordinate = cellCoordinate(dataId); // Find the coordinate of the clicked cell
+
     $(`.cell#${id}`).removeClass("dead").addClass("alive");
     if (click) {
+
         $(`.cell#${id}`).addClass("immortal");
     }
     
 
-    console.log("dataId",dataId);
+    console.log("findCell(coordinate (spawnLife):",findCell(coordinate));
     
     // Use a setTimeout to wait for UI changes to be applied before updating cell status
     setTimeout(() => {
-    let coordinate = cellCoordinate(dataId); // Find the coordinate of the clicked cell
     updateCellStatus(coordinate); // Update the status of the clicked cell and its neighbors
     console.log("coordinate:", coordinate);
-}, 1); // Delay of 0 milliseconds
-
-
-    // Check all cells and update their status based on neighbor status
-    
-        // for (let i = 0; i < totalCells; i++) {
-        //    let cellDataId = cellStatus[i].dataId;
-        //     // row = cellStatus[i].coordinate[0];
-        //     // column = cellStatus[i].coordinate[1];
-
-        //     lifeRules(cellCoordinate(cellDataId));
-        // } 
+}, 300); // Delay of 0 milliseconds
 }
 
 function updateCellStatus(coordinate) {
     let row = coordinate[0];
     let column = coordinate[1];
     let familyTest = findFamily(row,column).family;
-    console.log("findFamily(row,column) | updateCellStatus",familyTest);
-    console.log("coordinate (updateCellStatus):",coordinate);
-    console.log("row type (updateCellStatus):",row, typeof row);
-    
+   
 
     // do lifeRules for every neighbor cell
     for (let family in familyTest) {
         let extendedFamily = findFamily(familyTest[family].coordinate[0],familyTest[family].coordinate[1]).family
-        console.log(`family for cell ${familyTest[family].id} | updateCellsStatus`,extendedFamily)
-        // for (let extended in extendedFamily) {
-        //     console.log(`coordinates for extended cell ${extendedFamily[extended].id} | updateCellsStatus`,extendedFamily[extended].coordinate[0],extendedFamily[extended].coordinate[1]);
-        //     console.log(`family for extended cell ${extendedFamily[extended].id} | updateCellsStatus`,extendedFamily);
-        //     lifeRules(extendedFamily[extended].coordinate);
-        // }
-        console.log(`doing lifeRules for ${familyTest[family].id} | updateCellsStatus`,extendedFamily)
         lifeRules(familyTest[family].coordinate);
     }
     lifeRules(coordinate)
     allCellStatus()
-    // Problem: Last clicked cell status update is lagging by one click
 }
 
 function killCell(id) {
     $(`.cell#${id}`).removeClass("alive").addClass("dead");
 
     allCellStatus();
-    
-    // Check all cells and update their status based on neighbor status
-    
-        // for (let i = 0; i < totalCells; i++) {
-        //    let cellDataId = cellStatus[i].dataId;
-
-            // lifeRules(cellCoordinate(cellDataId));
-        //} 
 }
 
 
@@ -180,14 +148,10 @@ function lifeRules(coordinate) {
     let killedCells = []; // Testing a way to kill cells individually
 
     let familyStatus = findFamily(row, column).totalFamily;
-    console.log(`familyStatus (lifeRules) for ${findCell(coordinate).id}:`,familyStatus);
-    console.log(`cellInfo status for ${findCell(coordinate).id}: (lifeRules):`,cellInfo.status);
-    console.log(`cellInfo for ${findCell(coordinate).id}: (lifeRules):`,cellInfo);
-    console.log("coordinate (lifeRules):",coordinate);
+
     //Birth rule: An empty, or “dead,” cell with precisely three “live” neighbors (full cells) becomes live. 
-    if (cellInfo.status === "dead" && familyStatus.alive === 3) {
+    if (cellInfo.status === "dead" && familyStatus.alive === 3 ) {
         // spawnLife(id, dataId);
-        console.log(`cell ${cellInfo.id} has 3 siblings and should spawn a life (lifeRules)`);
         return spawnLife(cellInfo.id, false);
     }
 
@@ -202,8 +166,9 @@ function lifeRules(coordinate) {
         return killCell(cellInfo.id);
     }
 
-    console.log("bornCells (lifeRules):",bornCells);
-    console.log("killedCells (lifeRules):",killedCells);
+    console.log("cellInfo.immortal",cellInfo.immortal)
+
+    $(`.cell#${cellInfo.id}`).removeClass("immortal");
 }
 
 function allCellStatus() {
@@ -236,9 +201,6 @@ function allCellStatus() {
             aliveCells.push(cellStatus[i]);
         }
     }
-    // console.log("filtered dead cells:",deadCells);
-    // console.log("filtered alive cells:",aliveCells);
-
         return cellStatus;
     }
 
@@ -325,9 +287,6 @@ function findFamily(rowIndex, columnIndex) {
 
     familyStatus.alive = familyStatus.alive.length;
     familyStatus.dead = familyStatus.dead.length;
-    // console.log("familyCells:",familyCells);
-    // console.log("cellStatus:",cellStatus);
-    // console.log("family cell status", familyStatus);
     return {totalFamily: familyStatus, family: familyCells};
 }
 
@@ -347,8 +306,6 @@ function findCell(coordinate) {
 
 function findDataId(id) {
     let dataId = "";
-    console.log("findDataId",id);
-    console.log("cellStatus",cellStatus);
     for (let cell in cellStatus) {
 
         if (id === cellStatus[cell].id) {
@@ -406,18 +363,6 @@ function spawnRandomId(idLength) {
     }
     return randomId;
 }
-
-
-// Error Reporting
-// function duplicateIdError() {
-//    for (let i = 0; i < )
-//     throw Error ("Multiple cells have the same ID. Please adjust your code.") 
-// }
-
-// Test functions
-// console.log("gameColumns:",gameColumns, gameRows, totalCells);
-
-
 });
 
 
